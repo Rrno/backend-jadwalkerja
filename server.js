@@ -1,3 +1,6 @@
+// Baris ini untuk mencegah error koneksi ke Google API
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 const express = require('express');
 const { google } = require('googleapis');
 const bodyParser = require('body-parser');
@@ -8,7 +11,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Load Google Credentials dari Environment Variables Railway
 const googleCredentials = JSON.parse(process.env.GOOGLE_CREDS_JSON);
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 
@@ -21,23 +23,17 @@ const auth = new google.auth.JWT(
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-// Endpoint Autentikasi Dummy (Bisa dikembangkan dengan JWT & Database asli)
-app.post('/api/auth/login', (req, res) => {
-  const { username, password } = req.body;
-  if (username === "admin" && password === "password123") {
-    res.status(200).json({ success: true, token: "dummy-jwt-token", message: "Login Berhasil" });
-  } else {
-    res.status(401).json({ success: false, message: "Username atau password salah" });
-  }
-});
-
-// Endpoint untuk Sinkronisasi Upload Data dari Android Room
 app.post('/api/sync/upload', async (req, res) => {
-  const { attendanceData } = req.body; 
-  // Struktur data diharapkan: [{ tanggal: "2026-07-04", status: "Hadir", wage: 80000, bon: 0 }]
+  const { username, email, attendanceData } = req.body; 
   
+  if (!attendanceData || attendanceData.length === 0) {
+    return res.status(400).json({ success: false, message: "Data kosong" });
+  }
+
   try {
     const rows = attendanceData.map(item => [
+      username || "Anonim",
+      email || "Tidak ada email",
       item.tanggal,
       item.status,
       item.wage,
@@ -46,12 +42,12 @@ app.post('/api/sync/upload', async (req, res) => {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Sheet1!A:D',
+      range: 'Sheet1!A:F', 
       valueInputOption: 'USER_ENTERED',
       resource: { values: rows },
     });
 
-    res.status(200).json({ success: true, message: "Data berhasil disinkronkan ke Google Sheets" });
+    res.status(200).json({ success: true, message: "Sinkronisasi Berhasil" });
   } catch (error) {
     console.error("Error Google Sheets:", error);
     res.status(500).json({ success: false, message: "Gagal menulis ke Google Sheets", error: error.message });
