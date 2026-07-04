@@ -1,4 +1,4 @@
-// Baris ini untuk mencegah error koneksi ke Google API
+// Baris "sakti" untuk mencegah error ERR_STREAM_PREMATURE_CLOSE
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const express = require('express');
@@ -11,6 +11,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// Load credentials
 const googleCredentials = JSON.parse(process.env.GOOGLE_CREDS_JSON);
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 
@@ -26,10 +27,6 @@ const sheets = google.sheets({ version: 'v4', auth });
 app.post('/api/sync/upload', async (req, res) => {
   const { username, email, attendanceData } = req.body; 
   
-  if (!attendanceData || attendanceData.length === 0) {
-    return res.status(400).json({ success: false, message: "Data kosong" });
-  }
-
   try {
     const rows = attendanceData.map(item => [
       username || "Anonim",
@@ -54,7 +51,7 @@ app.post('/api/sync/upload', async (req, res) => {
   }
 });
 
-// --- INI BAGIAN YANG MEMPERBAIKI ERROR SIGTERM ---
+// Port Railway yang fleksibel
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server backend berjalan di port ${PORT}`);
