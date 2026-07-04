@@ -1,0 +1,16 @@
+{
+  "name": "railway-sheets-backend",
+  "version": "1.0.0",
+  "description": "Backend jembatan untuk sinkronisasi Room ke Google Sheets",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "googleapis": "^134.0.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  }
+}
