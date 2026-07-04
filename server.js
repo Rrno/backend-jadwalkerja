@@ -54,9 +54,8 @@ app.post('/api/sync/upload', async (req, res) => {
   }
 });
 
-// Ubah bagian ini
+// --- INI BAGIAN YANG MEMPERBAIKI ERROR SIGTERM ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server backend berjalan di port ${PORT}`);
 });
-
