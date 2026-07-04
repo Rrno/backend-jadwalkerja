@@ -54,7 +54,9 @@ app.post('/api/sync/upload', async (req, res) => {
   }
 });
 
+// Ubah bagian ini
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server backend berjalan di port ${PORT}`);
 });
+
